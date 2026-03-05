@@ -26,17 +26,23 @@ public class Etal {
 	}
 
 	public String libererEtal() {
-		etalOccupe = false;
-		StringBuilder chaine = new StringBuilder(
-				"Le vendeur " + vendeur.getNom() + " quitte son étal, ");
-		int produitVendu = quantiteDebutMarche - quantite;
-		if (produitVendu > 0) {
-			chaine.append(
-					"il a vendu " + produitVendu + " parmi " + produit + ".\n");
-		} else {
-			chaine.append("il n'a malheureusement rien vendu.\n");
+		try {
+			etalOccupe = false;
+			StringBuilder chaine = new StringBuilder(
+					"Le vendeur " + vendeur.getNom() + " quitte son étal, ");
+			int produitVendu = quantiteDebutMarche - quantite;
+			if (produitVendu > 0) {
+				chaine.append(
+						"il a vendu " + produitVendu + " parmi " + produit + ".\n");
+			} else {
+				chaine.append("il n'a malheureusement rien vendu.\n");
+			}
+			return chaine.toString();
+		}catch(NullPointerException e) {
+			e.printStackTrace();
+			System.out.println("Un étal vide ne peut pas être libéré");
 		}
-		return chaine.toString();
+		return " ";
 	}
 
 	public String afficherEtal() {
@@ -44,11 +50,16 @@ public class Etal {
 			return "L'étal de " + vendeur.getNom() + " est garni de " + quantite
 					+ " " + produit + "\n";
 		}
-		return "L'étal est libre";
+		return "L'étal est libre \n";
 	}
 
 	public String acheterProduit(int quantiteAcheter, Gaulois acheteur) {
-		if (etalOccupe) {
+		if(quantiteAcheter < 1) {
+			throw new IllegalArgumentException("La quantité à acheter est inférieure à 1");
+		}else if(!(this.isEtalOccupe())) {
+			throw new IllegalStateException("L'étal est vide");
+		}
+		try {
 			StringBuilder chaine = new StringBuilder();
 			chaine.append(acheteur.getNom() + " veut acheter " + quantiteAcheter
 					+ " " + produit + " à " + vendeur.getNom());
@@ -70,8 +81,11 @@ public class Etal {
 						+ vendeur.getNom() + "\n");
 			}
 			return chaine.toString();
+		}catch(NullPointerException e) {
+			e.printStackTrace();
+			return "";
 		}
-		return null;
+		
 	}
 
 	public boolean contientProduit(String produit) {

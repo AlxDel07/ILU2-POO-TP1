@@ -2,6 +2,8 @@ package villagegaulois;
 
 import personnages.Chef;
 import personnages.Gaulois;
+import villagegaulois.VillageSansChefException;
+
 
 public class Village {
 	private String nom;
@@ -115,7 +117,10 @@ public class Village {
 		return null;
 	}
 
-	public String afficherVillageois() {
+	public String afficherVillageois() throws VillageSansChefException{
+		if(this.chef == null) {
+			throw new VillageSansChefException("Le village n'a pas de chef");
+		}
 		StringBuilder chaine = new StringBuilder();
 		if (nbVillageois < 1) {
 			chaine.append("Il n'y a encore aucun habitant au village du chef "
@@ -134,7 +139,7 @@ public class Village {
 		StringBuilder chaine = new StringBuilder();
 		chaine.append(vendeur.getNom() + " cherche un endroit pour vendre " + nbProduit + " " + produit + "\n");
 		int numEtal = marche.trouverEtalLibre() + 1;
-		marche.utiliserEtal(numEtal, vendeur, produit, nbProduit);
+		marche.utiliserEtal(numEtal-1, vendeur, produit, nbProduit);
 		chaine.append("Le vendeur " + vendeur.getNom() + " vend des " + produit + " à l'étal n° " + numEtal);
 		return chaine.toString();
 	}
@@ -148,11 +153,8 @@ public class Village {
 		}else {
 			chaine.append("Les vendeurs qui proposent des " + produit + " sont : \n");
 			for(int i=0;i<longueur;i++) {
-				Etal etal = marche.etals[i];
-				if(etal.contientProduit(produit)) {
-					Gaulois vendeur = etal.getVendeur();
-					chaine.append("- " + vendeur.getNom() + "\n");
-				}
+				Gaulois vendeur = etalsProduit[i].getVendeur();
+				chaine.append("- " + vendeur.getNom() + "\n");
 			}
 		}
 		return chaine.toString();
@@ -176,9 +178,16 @@ public class Village {
 	public String afficherMarche() {
 		StringBuilder chaine = new StringBuilder();
 		chaine.append("Le marché du village " + this.nom + " possède plusieurs étals :\n");
-		for(int i=0;i<marche.etals.length;i++) {
-			marche.etals[i].afficherEtal();
+		Etal[] etals = marche.etals;
+		int etalsLibres = 0;
+		for(int i=0;i<etals.length;i++) {
+			if(etals[i].isEtalOccupe()) {
+				chaine.append(etals[i].afficherEtal());
+			}else {
+				etalsLibres++;
+			}
 		}
+		chaine.append("Il reste " + etalsLibres + " étals non utilisés");
 		return chaine.toString();
 	}
 	
